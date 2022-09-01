@@ -3,76 +3,117 @@
 
 int count = 0;
 
-typedef struct sNode{
-    int dado;
-    struct sNode* esq, *dir
+typedef struct sNode {
+  int dado;
+  struct sNode *esq, *dir;
 } Node;
 
-Node* newNode(int dado){
-    Node* temp = (Node*) malloc(sizeof(Node));
-    temp->dado = dado;
-    temp->esq = temp->dir = NULL;
-    count++;
-    return temp;
+void preOrder(Node *node) {
+  if (node != NULL) {
+    printf("%i  ", node->dado);
+    preOrder(node->esq);
+    preOrder(node->dir);
+  }
+}
+
+// Instanciando novo nodo e alocando memória
+Node *newNode(int dado) {
+  Node *temp = (Node *)malloc(sizeof(Node));
+  temp->dado = dado;
+  temp->esq = temp->dir = NULL;
+  count++;
+  return temp;
 };
 
-// Function to print binary tree in 2D
-// It does reverse inorder traversal
-void print2DUtil (Node * root, int space){
-    // Base case
-    if (root == NULL)
+// Função de imprimir árvore
+void print2DUtil(Node *root, int space) {
+  if (root == NULL)
     return;
-    // Increase distance between levels
-    space += count;
-    // Process right child first
-    print2DUtil (root->dir, space);
-    // Print current node after space
-    // count
-    printf ("\n");
-    for (int i = count; i < space; i++)
-    printf (" ");
-    printf ("%d\n", root->dado);
-    // Process left child
-    print2DUtil (root->esq, space);
-} 
- 
-// Wrapper over print2DUtil()
-void print2D (Node * root) {
-    // Pass initial space count as 0
-    print2DUtil (root, 0);
+  space += count;
+  print2DUtil(root->dir, space);
+  printf("\n");
+  for (int i = count; i < space; i++)
+    printf(" ");
+  printf("%d\n", root->dado);
+  print2DUtil(root->esq, space);
+}
+void print2D(Node *root) { print2DUtil(root, 0); }
+// END Função de imprimir árvore
+
+// Função de inserir dados
+Node *inserir(Node *node, int dado) {
+  if (node == NULL)
+    return newNode(dado);
+  if (dado <= node->dado) {
+    node->esq = inserir(node->esq, dado);
+  } else if (dado > node->dado) {
+    node->dir = inserir(node->dir, dado);
+  }
+  return node;
 }
 
-Node* inserir(Node* node, int dado){
-    if(node == NULL) return newNode(dado);
-    if(dado <= node->dado){
-        node->esq = inserir(node->esq, dado);
-    }else if(dado > node->dado){
-        node->dir = inserir(node->dir, dado);
+// Função de remoção
+Node *remover(Node *node, int dado) {
+  int aux = 0;
+  Node *temp;
+  if (dado == node->dado) {
+    if (node->esq == NULL && node->dir == NULL) {
+      aux = node->dado;
+      free(node);
+      return NULL;
     }
-    return node;
+    if (node->dir == NULL) { // se o direito tiver vazio só tem o esquerdo
+      aux = node->dado;
+      temp = node->esq;
+      free(node);
+      return temp;
+    }else if (node->esq == NULL) { // se o esquerdo tiver vazio só tem o dir
+      aux = node->dado;
+      temp = node->dir;
+      free(node);
+      return temp;
+    }
+  }
+  if (dado <= node->dado) {
+    aux = node->dado;
+    node->esq = remover(node->esq, dado);
+  } else if (dado > node->dado) {
+    aux = node->dado;
+    node->dir = remover(node->dir, dado);
+  }
+  return node;
 }
-
+// || node->dir != NULL
 
 int main() {
 
-    Node* root = NULL;
+  Node *root = NULL;
+  root = inserir(root, 10);
 
-    root = inserir(root, 5);
-    
-    inserir (root, 12);
-    inserir (root, 2);
-    inserir (root, 7);
-    inserir (root, 3);
-    inserir (root, 1);
-    inserir (root, 10);
-    inserir (root, 8);
-    inserir (root, 9);
-    inserir (root, 4);
-    inserir (root, 6);
-    inserir (root, 11);
+  inserir(root, 5);
+  inserir(root, 3);
+  inserir(root, 15);
+  inserir(root, 12);
+  inserir(root, 17);
+  inserir(root, 4);
+  inserir(root, 10);
+  inserir(root, 9);
+  inserir(root, 1);
+  inserir(root, 11);
+  // remover(root, 4);
+  // remover(root, 1);
+  // remover(root, 3);
 
-    //função de imprimir
-    print2D(root);
+  preOrder(root);
 
+  printf("\n");
+
+  remover(root, 12);
+
+  printf("\n");
+
+  preOrder(root);
+  // função de imprimir
+  // print2D(root);
   return 0;
 }
